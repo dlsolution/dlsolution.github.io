@@ -128,3 +128,5 @@ Application moves to the inactive state temporarily and it remains in this state
 ## Conclusion
 
 I hope, above tutorial will help to clear the concepts of application lifecycle.
+
+Reference: [https://manasaprema04.medium.com/application-life-cycle-in-ios-f7365d8c1636](https://manasaprema04.medium.com/application-life-cycle-in-ios-f7365d8c1636)

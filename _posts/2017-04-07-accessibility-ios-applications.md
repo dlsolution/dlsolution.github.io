@@ -24,7 +24,7 @@ In this post we will focus on visual disability and on two accessibility feature
 You can choose your preferred text size in _Settings_ > _General_ > _Accessibility_ > _Larger Text_.
 
 {% include image.html
-            img="assets/accessibility-image1.png"
+            img="assets/2017-04-07/accessibility-image1.png"
             title="Example of different font sizes"
             caption="Example of different font sizes"
             %}
@@ -193,14 +193,14 @@ The system will now read the `accessibilityLabel` we set for the label, which is
 Let’s imagine you display a stepper, to update the value of a counter. The UI looks like this:
 
 {% include image.html
-            img="assets/accessibility-image2.png"
+            img="assets/2017-04-07/accessibility-image2.png"
             title="Sample Stepper"
             caption="Sample Stepper" %}
 
 If we let the default accessibility values, here what happens: the focus will go to the minus button, then the plus button, and finally to the count label.
 
 {% include image.html
-            img="assets/accessibility-image3.png"
+            img="assets/2017-04-07/accessibility-image3.png"
             title="Focus when default"
             caption="Focus when default" %}
 
@@ -220,7 +220,7 @@ As seen before, traits describe a single aspect of an element’s state, behavio
 > Use this trait to characterize an accessibility element that users can adjust in a continuous manner, such as a slider or a picker view. If you specify this trait on an accessibility element, you must also implement the `accessibilityIncrement()` and `accessibilityDecrement()` methods in the `UIAccessibilityAction` protocol.
 
 {% include image.html
-            img="assets/accessibility-image4.png"
+            img="assets/2017-04-07/accessibility-image4.png"
             title="Stepper in wrapper view"
             caption="Stepper in wrapper view" %}
 
@@ -317,7 +317,7 @@ In the code above you can see we update the `wrapperView.accessibilityValue` eve
 You can display the rotor if you hold with two fingers and twist left or right.
 
 {% include image.html
-            img="assets/accessibility-image5.png"
+            img="assets/2017-04-07/accessibility-image5.png"
             title="Rotor in VoiceOver"
             caption="Rotor in VoiceOver" %}
 
@@ -339,7 +339,7 @@ For example if you select the value Headings, you will move from UI elements tha
 In the example below, if the focus is on the first header _Header 1_ and that _Headings_ is selected in the rotor, when you flick your finger down, the focus will move to the second header _Header 2_ skipping all the content between.
 
 {% include image.html
-            img="assets/accessibility-image6.png"
+            img="assets/2017-04-07/accessibility-image6.png"
             title="Scroll down to move from first header to second"
             caption="Scroll down to move from first header to second" %}
 
@@ -388,7 +388,7 @@ You should use those methods to update your UI if _VoiceOver_ is activated or no
 For example let’s imagine you have a dropdown button and you want to display a picker as the inputView when you tap on it (see image below).
 
 {% include image.html
-            img="assets/accessibility-image7.png"
+            img="assets/2017-04-07/accessibility-image7.png"
             title="Default behavior when dropdown button is selected"
             caption="Default behavior when dropdown button is selected" %}
 
@@ -397,7 +397,7 @@ One solution would be to let the user select a value in the picker both with and
 A better solution would be to let the user select a value in the picker if _VoiceOver_ is not activated, like regular users. But if _VoiceOver_ is running, we could leverage the `UIAccessiblityTraitAdjustable` trait to avoid displaying the picker view and let the user change the value swiping up or down.
 
 {% include image.html
-            img="assets/accessibility-image8.png"
+            img="assets/2017-04-07/accessibility-image8.png"
             title="VoiceOver behavior"
             caption="VoiceOver behavior" %}
 

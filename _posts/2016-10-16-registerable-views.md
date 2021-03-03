@@ -240,6 +240,6 @@ The type of the cell, and thus the identifier is infered by the compiler. We do 
 
 Swift has powerful features such as enums, protocol extensions and strong type system that we can leverage to create new APIs.
 
-You can find the full playground of `RegisterableView` [here]({{ site.url }}/assets/registerable_views.playground.zip).
+You can find the full playground of `RegisterableView` [here]({{ site.url }}/assets/2016-10-16/registerable_views.playground.zip).
 
 _2017-09-17 Updated for Swift 3 syntax_

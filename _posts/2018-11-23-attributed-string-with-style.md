@@ -18,7 +18,7 @@ In general, I use `NSAttributedString` to highlight parts of a label content (wi
 For instance, for one of the last app I worked on, I had to be able to search through a list of users. As I type in the search bar, users are filtered based on the query, and their names contain a visual indication of the query match. This visual clue is implemented with an `NSAttributedString`.
 
 {% include image.html
-            img="assets/attributed_string_example.png"
+            img="assets/2018-11-23/attributed_string_example.png"
             title="Image 1. Highlighted search term"
             caption="Image 1. Highlighted search term" %}
 

@@ -29,7 +29,7 @@ present(alertController, animated: true)
 ```
 
 {% include image.html
-            img="assets/alert-controller-deletion.png"
+            img="assets/2020-03-10/alert-controller-deletion.png"
             title=""
             caption="" %}
 

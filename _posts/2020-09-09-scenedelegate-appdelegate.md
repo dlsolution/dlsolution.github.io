@@ -350,3 +350,5 @@ Application Scene Manifest
 The main reason for Apple to add UISceneDelegate to iOS 13 was to create a good entry point for multi-windowed applications. AppDelegate is responsible for handling application-level events, like app launch and the SceneDelegate is responsible for scene lifecycle events like scene creation, destruction and state restoration of a UISceneSession.
 
 **I hope, above tutorial will help to clear the concepts of scene delegate.**
+
+Reference: [https://manasaprema04.medium.com/scene-delegate-vs-appdelegate-86e22dc17fcb](https://manasaprema04.medium.com/scene-delegate-vs-appdelegate-86e22dc17fcb)

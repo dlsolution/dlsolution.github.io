@@ -27,7 +27,7 @@ filledButtonStyle(button)
 ```
 
 {% include image.html
-            img="assets/style_filled_button.png"
+            img="assets/2019-02-19/style_filled_button.png"
             title=""
             caption="" %}
 
@@ -75,7 +75,7 @@ let roundedAndFilled = filled.compose(with: rounded)
 What was previously impossible with `UIButton` subclasses is now very straightforward using simple functions.
 
 {% include image.html
-            img="assets/style_rounded_button.png"
+            img="assets/2019-02-19/style_rounded_button.png"
             title=""
             caption="" %}
 

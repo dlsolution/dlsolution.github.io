@@ -14,14 +14,14 @@ At first, there is generally one coordinator per navigation controller. Pushed v
 As the application complexity increases, coordinators handle more and more logic, mostly when screens are accessible from different places. This leads to coordinators implementing a lot of navigation delegation protocols (schema 1).
 
 {% include image.html
-            img="assets/coordinator-image1.png"
+            img="assets/2017-09-14/coordinator-image1.png"
             title="Schema 1. One coordinator handle multiple logically related units"
             caption="Schema 1. One coordinator handle multiple logically related units" %}
 
 When a coordinator handle too many view controllers in a navigation controller, it’s a good idea to refactor and to break the logic in multiple coordinators, each one handling a subset of the navigation controller stack. All those new coordinators are dispatched one after the other and share the same navigationController, each of them taking care of a distinct logic unit (schema 2).
 
 {% include image.html
-            img="assets/coordinator-image2.png"
+            img="assets/2017-09-14/coordinator-image2.png"
             title="Schema 2. Multiple coordinators handle logically related units"
             caption="Schema 2. Multiple coordinators handle logically related units" %}
 
@@ -275,7 +275,7 @@ All our work has been done to have a chance to call `removeChild(coordinator)` a
 Here is a visual representation of the different objects in play:
 
 {% include image.html
-            img="assets/coordinator-image3.png"
+            img="assets/2017-09-14/coordinator-image3.png"
             title="Schema 3. Object interactions"
             caption="Schema 3. Object interactions" %}
 
