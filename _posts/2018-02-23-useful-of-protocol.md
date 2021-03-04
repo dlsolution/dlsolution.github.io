@@ -5,7 +5,7 @@ author: "Linh Vo"
 tags: "UIKit"
 ---
 
-We might all have gone through the pain of spending a lot of time to implement a function, but then realize that Swift has a built-in function that does the same thing. In this article, I’m going to talk about 5 useful protocols that can save you much time, and take your code to the next level.
+We might all have gone through the pain of spending a lot of time to implement a function, but then realize that Swift has a built-in function that does the same thing. In this article, I’m going to talk about 3 useful protocols that can save you much time, and take your code to the next level.
 
 # CaseIterable
 
