@@ -21,7 +21,7 @@ Technical Skills:
 - Proficient with iOS frameworks, networking, data store and UI patterns.
 - Proficient with debugging runtime issues and performance optimizations.
 - Proficient with with writing unit tests using XCTest framework.
-- Experience working with RESTful API, GraphQL.
+- Experience working with RESTful API.
 - Experience with Git version control system.
 - Experience with continuous integration & deployment system (CI/CD): Travis CI, Bitrise, Fastlane, App Distribution.
 - Experience with cloud computing services: Firebase, Google Cloud Platform, Amazon Web Service.
@@ -30,6 +30,6 @@ Technical Skills:
 You can contact me on the following networks:
 
 - [Email](mailto:duylinh158@gmail.com)
-- [Twitter](https://twitter.com/duylinh158)
 - [LinkedIn](https://linkedin.com/in/duylinh158)
 - [Github](https://github.com/dlsolution)
+- [Twitter](https://twitter.com/duylinh158)
