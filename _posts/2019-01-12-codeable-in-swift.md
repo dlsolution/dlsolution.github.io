@@ -267,8 +267,6 @@ let json = """
 
 `Codable` is able to handle this just fine, as long as you can describe the relationships clearly.
 
-I find the easiest way to do this is using nested structs, like this:
-
 ```swift
 struct User: Codable {
     struct Name: Codable {
@@ -287,20 +285,6 @@ The downside is that if you want to read a user’s first name, you need to use 
 
 If you want to parse hierarchical data into a flat struct – i.e., you want to be able to write `user.firstName` rather than `user.name.firstName` - then you need to do some parsing yourself. This isn’t too hard, though, and `Codable` makes it beautifully type safe.
 
-First, create the struct you want to end up with:
-
-```swift
-struct User: Codable {
-    var firstName: String
-    var lastName: String
-    var age: Int
-}
-```
-
-Second, we need to define coding keys that describe where data can be found in the hierarchy.
-
-Let’s look at the JSON again:
-
 ```swift
 let json = """
 [
@@ -315,69 +299,91 @@ let json = """
 """
 ```
 
-As you can see, at the root there’s a key called “name” and another called “age”, so we need to add that as our root coding keys. Put this inside your struct:
-
 ```swift
-enum CodingKeys: String, CodingKey {
-    case name, age
+struct User: Codable {
+
+    var firstName: String
+    var lastName: String
+    var age: Int
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case age
+    }
+
+    enum NameCodingKeys: String, CodingKey {
+        case firstName
+        case lastName
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        age = try container.decode(Int.self, forKey: .age)
+
+        let name = try container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
+        firstName = try name.decode(String.self, forKey: .firstName)
+        lastName = try name.decode(String.self, forKey: .lastName)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(age, forKey: .age)
+
+        var name = container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
+        try name.encode(firstName, forKey: .firstName)
+        try name.encode(lastName, forKey: .lastName)
+    }
 }
 ```
 
-Inside “name” were two more keys, “first_name” and “last_name”, so we’re going to create some coding keys for those two. Add this:
+# Encoding Swift Objects as JSON with Codable
+
+So far we’ve focused on decoding JSON data to Swift objects. What about going the other way? Can we also encode objects as JSON? Yes, why not!
 
 ```swift
-enum NameCodingKeys: String, CodingKey {
-    case firstName, lastName
+var user = User()
+user.firstName = "Bob"
+user.lastName = "and Alice"
+user.country = "Cryptoland"
+
+let jsonData = try! JSONEncoder().encode(user)
+let jsonString = String(data: jsonData, encoding: .utf8)!
+print(jsonString)
+```
+
+And the output is:
+
+```swift
+{"country":"Cryptoland","first_name":"Bob","last_name":"and Alice"}
+```
+
+Just as before, can we expand the example to deal with errors? Yes! Like this:
+
+```swift
+let encoder = JSONEncoder()
+encoder.outputFormatting = .prettyPrinted
+
+do {
+    let jsonData = try encoder.encode(user)
+
+    if let jsonString = String(data: jsonData, encoding: .utf8) {
+        print(jsonString)
+    }
+} catch {
+    print(error.localizedDescription)
 }
 ```
 
-Now for the hard part: we need to write a custom initializer and custom encode method for our type. Start by adding this empty method to your struct:
+In the above example, we’re also using the `outputFormatting` property of the encoder to “pretty print” the JSON data. This adds spaces, tabs and newlines to make the JSON string easier to read. Like this:
 
 ```swift
-init(from decoder: Decoder) throws {
+{
+    "country" : "Cryptoland",
+    "first_name" : "Bob",
+    "last_name" : "and Alice"
 }
 ```
 
-Inside there, the first thing we need to do is attempt to pull out a container we can read using the keys of our `CodingKeys` enum, like this:
+# Tools
 
-```swift
-let container = try decoder.container(keyedBy: CodingKeys.self)
-```
-
-Once that’s done we can attempt to read our `age` property. This is done in a type-safe way: you tell it the type you want to decode (`Int.self` for our age), along with a key name from the `CodingKeys` enum:
-
-```swift
-age = try container.decode(Int.self, forKey: .age)
-```
-
-Next we need to dig down one level to read our name data. As you saw earlier, “name” is a top-level key inside our `CodingKeys` enum, but it’s actually a nested container of other values that we need to read inside. So, we need to pull out that container:
-
-```swift
-let name = try container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
-```
-
-And finally we can read two strings for the `.firstName` and `.lastName` keys:
-
-```swift
-firstName = try name.decode(String.self, forKey: .firstName)
-lastName = try name.decode(String.self, forKey: .lastName)
-```
-
-That finishes the custom initializer, but we still have one more method to write: `encode(to:)`. This is effectively the reverse of the initializer we just wrote, because it’s job is to convert our properties back into nested container as appropriate.
-
-This means creating a container based on our `CodingKeys` enum and writing age there, then creating a nested container based on our `NameCodingKeys` enum, and writing both `firstName` and `lastName` there:
-
-```swift
-func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(age, forKey: .age)
-
-    var name = container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
-    try name.encode(firstName, forKey: .firstName)
-    try name.encode(lastName, forKey: .lastName)
-}
-```
-
-That completes all our code. With that in place, you can now read the `firstName` property directly, which is much nicer!
-
-Reference: [https://www.hackingwithswift.com/articles/119/codable-cheat-sheet](https://www.hackingwithswift.com/articles/119/codable-cheat-sheet)
+[quicktype](https://app.quicktype.io/#l=swift) produces nice types and JSON (de)serializers for many programming languages. It can infer types from JSON but also takes types from JSON Schema, TypeScript, and GraphQL.
