@@ -28,6 +28,38 @@ extension NibLoadable {
 }
 ```
 
+# NibOwnerLoadable protocol
+
+```swift
+protocol NibOwnerLoadable: class {
+    static var nib: UINib { get }
+}
+
+extension NibOwnerLoadable {
+    static var nib: UINib {
+        return UINib(nibName: String(describing: self), bundle: Bundle(for: self))
+    }
+}
+
+extension NibOwnerLoadable where Self: UIView {
+    func loadNibContent() {
+        let layoutAttributes: [NSLayoutConstraint.Attribute] = [.top, .leading, .bottom, .trailing]
+        for case let view as UIView in type(of: self).nib.instantiate(withOwner: self, options: nil) {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(view)
+            NSLayoutConstraint.activate(layoutAttributes.map { attribute in
+                NSLayoutConstraint(
+                    item: view, attribute: attribute,
+                    relatedBy: .equal,
+                    toItem: self, attribute: attribute,
+                    multiplier: 1, constant: 0.0
+                )
+            })
+        }
+    }
+}
+```
+
 # Reusable protocol
 
 ```swift
@@ -201,15 +233,30 @@ Now all you have is **a beautiful code and type-safe cells**, with compile-type 
 
 # Type-safe XIB-based reusable views
 
-## 1. Declare your views to conform to `NibLoadable`
+Reusable also allows you to create reusable custom views designed in Interface Builder to reuse them in other XIBs or Storyboards, or by code. This allows you to treat those views like custom UI widgets that can be used in multiple places in your app.
 
-Use the `NibLoadable` protocol if the XIB you're using don't use its "File's Owner" and the reusable view you're designing is the root view of the XIB
+## 1. Declare your views to conform to `NibLoadable` or `NibOwnerLoadable`
+
+In your swift source declaring your custom view class:
+
+- Use the `NibLoadable` protocol if the XIB you're using don't use its "File's Owner" and the reusable view you're designing is the root view of the XIB
+
+- Use the `NibOwnerLoadable` protocol if you used a "File's Owner" of the XIB being of the class of your reusable view, and the root view(s) of the XIB is to be set as a subview providing its content.
 
 ```swift
+// a XIB-based custom UIView, used as root of the XIB
 final class NibBasedRootView: UIView, NibLoadable { /* and that's it! */ }
+
+// a XIB-based custom UIView, used as the XIB's "File's Owner"
+final class NibBasedFileOwnerView: UIView, NibOwnerLoadable { /* and that's it! */ }
 ```
 
+> 💡 You should use the second approach if you plan to use your custom view in another XIB or Storyboard.
+> This will allow you to just drop a UIView in a XIB/Storyboard and change its class in IB's inspector to the class of your custom XIB-based view to use it. That custom view will then automagically load its own content from the associated XIB when instantiated by the storyboard containing it, without having to write additional code to load the content of the custom view manually every time.
+
 ## 2. Design your view in Interface Builder
+
+For example if you named your class `MyCustomWidget` and made it `NibOwnerLoadable`:
 
 - Set the File's Owner's class to `MyCustomWidget`
 
@@ -236,7 +283,31 @@ final class MyCustomWidget: UIView, NibOwnerLoadable {
 
 Then that widget can be integrated in a Storyboard Scene (or any other XIB) by simply dropping a `UIView` on the Storyboard, and changing its class to `MyCustomWidget` in IB's inspector.
 
-## 3. Instantiating a `NibLoadable` view
+## 3a. Auto-loading the content of a `NibOwnerLoadable` view
+
+If you used `NibOwnerLoadable` and made your custom view the File's Owner of your XIB, you should then override `init?(coder:)` so that it loads it's associated XIB as subviews and add constraints automatically:
+
+```swift
+final class MyCustomWidget: UIView, NibOwnerLoadable {
+  …
+  required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+    self.loadNibContent()
+  }
+}
+```
+
+`self.loadNibContent()` is a method provided by the NibOwnerLoadable mixin. It basically loads the content from the associated `MyCustomWidget.xib`, then add all the root views in that XIB as subviews of your `MyCustomWidget`, with appropriate layout constraints to make them the same size as your `MyCustomWidget` container view.
+
+Overriding `init?(coder:)` and calling `self.loadNibContent()` thus allows you to have that content automatically loaded by the system when that `MyCustomWidget` in included in another XIB or in a Storyboard (as `init?(coder:)` is the `init` that is called by iOS to create those instances in a XIB or Storyboard)
+
+> 💡 Note: it is also possible to override `init(frame:)` similarly, in order to be able to also create an instance of that view manually via code if needed.
+
+## 3b. Instantiating a `NibLoadable` view
+
+If you used `NibLoadable` and made your custom view the root view of your XIB (not using the File's Owner at all), these are not designed to be used in other Storyboards or XIBs like `NibOwnerLoadable` is, as they won't be able to auto-load their content.
+
+Instead, you will instantiate those `NibLoadable` views by code, which is as simple as calling `loadFromNib()` on your custom class:
 
 ```swift
 let view1 = NibBasedRootView.loadFromNib() // Create one instance
