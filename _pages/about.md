@@ -25,6 +25,7 @@ Technical Skills:
 - Experience with Git version control system.
 - Experience with continuous integration & deployment system (CI/CD): Travis CI, Bitrise, Fastlane, App Distribution.
 - Experience with cloud computing services: Firebase, Google Cloud Platform, Amazon Web Service.
+- Knowledge in programming communication between mobile and server via TCP/IP, WebRTC, WebSocket, WebService.
 - Knowledge of Design Patterns, Data Structures and Algorithms.
 
 You can contact me on the following networks:
