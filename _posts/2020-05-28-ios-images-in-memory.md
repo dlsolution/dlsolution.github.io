@@ -369,4 +369,4 @@ unload large resource when off-screen, `viewDidDisappear`; and load large resour
 
 Use memory graphs to further understand and reduce memory footprint
 
-Origin post: [https://suelan.github.io/2020/05/03/iOS-images-in-memory/](https://suelan.github.io/2020/05/03/iOS-images-in-memory/)
+Original post: [https://suelan.github.io/2020/05/03/iOS-images-in-memory/](https://suelan.github.io/2020/05/03/iOS-images-in-memory/)

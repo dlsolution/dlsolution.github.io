@@ -185,4 +185,4 @@ You use multithreading and concurrency to ensure a smooth user experience, while
 
 Grand Central Dispatch is one approach for concurrency on iOS, which we’ve discussed in this tutorial. Awesome!
 
-Origin Post: [https://learnappmaking.com/grand-central-dispatch-swift/](https://learnappmaking.com/grand-central-dispatch-swift/)
+Original Post: [https://learnappmaking.com/grand-central-dispatch-swift/](https://learnappmaking.com/grand-central-dispatch-swift/)
