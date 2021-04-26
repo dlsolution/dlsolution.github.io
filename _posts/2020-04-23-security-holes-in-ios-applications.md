@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Three types of security holes I see in too many iOS applications"
+title: "Security holes I see in too many iOS applications"
 author: "Linh Vo"
 tags: "UIKit"
 ---
@@ -11,11 +11,11 @@ My work consists of many things. While working on a project from scratch is grea
 
 In pretty much all of the projects I open, at least 95% of the user data is stored in UserDefaults. When using UserDefaults in Android (called SharedPreferences), developers quickly learn how to go into the actual plain text files and read and change the preferences. As an iPhone is a little more abstracted, iOS developers feel safer using the UserDefaults. But that is a fallacy. UserDefaults store user information in plain text and can be both read and manipulated. Things I have seen developers store in plain text UserDefaults include:
 
-- Login Information (including passwords) | I think this is self-explanatory!
+- Login Information (including passwords). I think this is self-explanatory!
 
-- API access (authentication) tokens | this means someone who reads this token from a phone can talk to the API (could be yours) from anywhere and be authenticated. How about writing a quick Python Program that hits your API with 150 requests per minute, doing something the user in your app is only allowed to do once per hour? Or storing Stripe API access keys? Uuuuff.
+- API access (authentication) tokens. This means someone who reads this token from a phone can talk to the API (could be yours) from anywhere and be authenticated. How about writing a quick Python Program that hits your API with 150 requests per minute, doing something the user in your app is only allowed to do once per hour? Or storing Stripe API access keys?
 
-- Payment details | I think this is again self-explanatory. Instead of never even persisting typed in credit-card details, I have seen credit-card numbers incl. CVC and date stored in plain text. Happy shopping spree!
+- Payment details. I think this is again self-explanatory. Instead of never even persisting typed in credit-card details, I have seen credit-card numbers incl. CVC and date stored in plain text. Happy shopping spree!
 
 So, how do we fix it? The answer is simple: first, think about whether you even need to store specific information. If you never store passwords or payment data, you can never lose passwords and payment data and avoid getting yourself onto the cover of the New York Times. If you really need to store some crucial information like API access tokens, you have two options.
 

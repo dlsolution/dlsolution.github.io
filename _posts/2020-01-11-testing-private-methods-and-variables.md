@@ -2,7 +2,7 @@
 layout: post
 title: "Testing private methods and variables in Swift"
 author: "Linh Vo"
-tags: "UIKit"
+tags: "Unit-Test"
 ---
 
 Testing private methods and variables is often something we run into when writing tests for our applications. You could think that it’s needed to fully verify that your code is working as expected and it helps you to get to that 100% code coverage.
