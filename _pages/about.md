@@ -5,17 +5,17 @@ author: "Linh Vo"
 permalink: /about/
 ---
 
-Hi, I'm Linh 👋🏾
+# Hi, I'm Linh 👋
 
-I'm a Software Engineer based in Viet Nam, currently I'm a full-time independent iOS Developer.
+I'm a passionate Software Engineer living in Vietnam, currently I’m a full-time independent iOS Developer.
 
-Before I worked at [Asian Tech Co., Ltd.](https://asiantech.vn/) after graduating from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng).
+I graduated from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng) and started working at [Asian Tech Co., Ltd.](https://asiantech.vn/) in 2016.
 
 I have more 4 years experience in iOS application development covering multiple technologies, working on software design, coding, testing and maintenance.
 
 I always learn and research new technologies, love to explore. I can adapt quickly a new technology.
 
-Technical Skills:
+### Technical Skills:
 
 - Proficient with Swift, XCode and Cocoa Touch.
 - Proficient with iOS frameworks, networking, data store and UI patterns.
@@ -28,7 +28,7 @@ Technical Skills:
 - Knowledge in programming communication between mobile and server via TCP/IP, WebRTC, WebSocket, WebService.
 - Knowledge of Design Patterns, Data Structures and Algorithms.
 
-You can contact me on the following networks:
+### You can contact me on the following networks:
 
 - [Email](mailto:duylinh158@gmail.com)
 - [LinkedIn](https://linkedin.com/in/duylinh158)
