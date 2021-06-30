@@ -20,7 +20,7 @@ I always learn and research new technologies, love to explore. I can adapt quick
 - Proficient with Swift, XCode and Cocoa Touch.
 - Proficient with iOS frameworks, networking, data store and UI patterns.
 - Proficient with debugging runtime issues and performance optimizations.
-- Proficient with with writing unit tests using XCTest framework.
+- Proficient with writing unit tests using XCTest framework.
 - Experience working with RESTful API.
 - Experience with Git version control system.
 - Experience with continuous integration & deployment system (CI/CD): Travis CI, Bitrise, Fastlane, App Distribution.
