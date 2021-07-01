@@ -74,6 +74,7 @@ firstIndex(of: x) // O(n)
 append(x) // O(1)
 append(contentsOf: anArray)
 insert(x, at: i) // O(n)
+insert(contentsOf: anArray, at: i)
 ```
 
 It is important to note that `append` **O(1)** is much faster than `insert`.
@@ -81,14 +82,21 @@ It is important to note that `append` **O(1)** is much faster than `insert`.
 ```swift
 // Remove
 remove(at: i) // O(n)
+removeFirst()
+removeLast()
 removeAll(where: {..})
-dropFirst(x)
-let last = popLast() // O(1)
-```
 
-```swift
-// Move
-move(fromOffsets:toOffset:)
+let numbers = [1, 2, 3, 4, 5]
+print(numbers.dropFirst(2))
+// Prints "[3, 4, 5]"
+print(numbers.dropFirst(10))
+// Prints "[]"
+
+let numbers = [1, 2, 3, 4, 5]
+print(numbers.dropLast(2))
+// Prints "[1, 2, 3]"
+print(numbers.dropLast(10))
+// Prints "[]"
 ```
 
 # Mutate
@@ -97,24 +105,10 @@ move(fromOffsets:toOffset:)
 sorted()
 reversed()
 shuffled()
-swapAt()
+swapAt(i, j)
 ```
 
 There are more ops using your own predicate: `max(by:)`, `sorted(by:)`, `filter()`, `map()`
-
-# Partition
-
-`partition(by:)` is a powerful API, and quite advanced. It reorders the sequence by a predicate, such that the right half **satisfy the predicate** (while left half does not).
-
-It returns the index of the first index in the right half.
-
-```swift
-let p = array.partition { .. }
-let h1 = list[..<p] // Left half
-let h2 = list[p...] // Right half
-```
-
-Note that it is an **unstable partition**, which means the order in both half are not preserved. There is an internal `halfStablePartition` which will have the 1st half retain the original order, and also a `stablePartition` which will have both half retain the original order.
 
 # Comparable, Equatable
 
@@ -161,4 +155,78 @@ extension MyClass: Hashable {
         hasher.combine(ObjectIdentifier(self).hashValue)
     }
 }
+```
+
+# Set
+
+Sets in Swift are similar to arrays and dictionaries. Just like arrays and dictionaries, the `Set` type is used to store multiple items of the same type in one collection.
+
+Here's an example:
+
+```swift
+var fruit:Set = ["apple", "banana", "strawberry", "jackfruit"]
+```
+
+You can add and remove items like this:
+
+```swift
+fruit.insert("pineapple")
+fruit.remove("banana")
+```
+
+Sets are different from arrays and dictionaries, in these ways:
+
+- Sets don't have an order – they're literally unsorted
+- Every item in a set needs to be unique
+- Sets don't have indices or keys
+- Instead, a set's values need to be _hashable_
+- Because set items are hashable, you can search sets in _O(1)_ time
+
+Here's how you can quickly search a set:
+
+```swift
+let movies:Set = ["Rocky", "The Matrix", "Lord of the Rings"]
+
+if movies.contains("Rocky") {
+    print("Rocky is one of your favorite movies!")
+}
+```
+
+Sets are particularly useful for membership operations, to find out if sets have items in common for example. We can make a union of sets, subtract sets, intersect them, and find their differences.
+
+Consider the following Italian coffees and their ingredients:
+
+```swift
+let cappuccino:Set = ["espresso", "milk", "milk foam"]
+let americano:Set  = ["espresso", "water"]
+let machiato:Set   = ["espresso", "milk foam"]
+let latte:Set      = ["espresso", "milk"]
+```
+
+Can we find the **union** (add items) of two coffees?
+
+```swift
+machiato.union(latte)
+// ["espresso", "milk foam", "milk"]
+```
+
+Can we **subtract** one coffee from another?
+
+```swift
+cappuccino.subtracting(americano)
+// ["milk foam", "milk"]
+```
+
+Can we find the **intersection** (shared items) of two coffees?
+
+```swift
+latte.intersection(cappuccino)
+// ["espresso", "milk"]
+```
+
+Can we find the **difference** between two coffees?
+
+```swift
+latte.symmetricDifference(americano)
+// ["milk", "water"]
 ```
