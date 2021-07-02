@@ -11,7 +11,20 @@ The coding interview process is notoriously difficult, and the preparation proce
 
 A cheatsheet for Swift. Including examples of common Swift code and short explanations of what it does and how it works. Perfect for practising [LeetCode](https://leetcode.com/).
 
-# Loop array
+# Collection Types
+
+Swift provides three primary collection types, known as **arrays**, **sets**, and **dictionaries**, for storing collections of values.
+
+- **Arrays**: Ordered collections of values. Quick lookup by index, slow to lookup by value, slow to insert/delete.
+- **Dictionaries**: Unordered collections of key-value associations. Quick lookups by key.
+- **Sets**: Unordered collections of unique values. Quick lookup by value, quick to insert/delete.
+
+{% include image.html
+img="assets/2021-01-01/image.png" %}
+
+# Arrays
+
+### Loop array
 
 ```swift
 for value in array
@@ -19,7 +32,7 @@ for index in array.indices
 for (index, value) in array.enumerated()
 ```
 
-# Loop array with range
+### Loop array with range
 
 ```swift
 for i in 0..<array.count // Traditional loop with indices
@@ -29,22 +42,7 @@ for v in array.prefix(3) // The first 3
 for v in array.suffix(3) // The last 3
 ```
 
-# Loop dictionary
-
-```swift
-for (key, value) in dictionary
-```
-
-# Check if dictionary has key
-
-```swift
-dictionary.keys.contains("k")
-
-// Alternative, if the value type is _never_ `Optional`
-if dictionary["k"] == nil // "k" is not in keys
-```
-
-# Special sequences
+### Special sequences
 
 ```swift
 let tenOnes = repeatElement(1, count: 10) // Array(tenOnes)
@@ -64,7 +62,7 @@ for countdown in stride(from: 3, to: 0, by: -1) {
 // 1...
 ```
 
-# Array CRUD
+### Array CRUD
 
 ```swift
 // Find
@@ -99,7 +97,7 @@ print(numbers.dropLast(10))
 // Prints "[]"
 ```
 
-# Mutate
+### Mutate
 
 ```swift
 sorted()
@@ -110,54 +108,78 @@ swapAt(i, j)
 
 There are more ops using your own predicate: `max(by:)`, `sorted(by:)`, `filter()`, `map()`
 
-# Comparable, Equatable
-
-To compare and sort, the type must implement the `Comparable` protocol.
-
-```swift
-extension MyClass: Comparable {
-    static func < (lhs: MyClass, MyClass: Date) -> Bool {
-        return lhs.foo < rhs.foo
-    }
-}
-```
-
-`Comparable` inherits `Equatable` protocol, so you might need to implement it too. In cases like struct where Equatable is provided by default, you need not implement it.
-
-```swift
-extension MyClass: Equatable {
-    public static func == (lhs: MyClass, rhs: MyClass) -> Bool {
-        return lhs.foo == rhs.foo
-    }
-}
-```
-
-# Identity Comparison ===
-
-There is an op `===` for identity comparison eg. are they the same instances?
-
-```swift
-// For example, in the above Equatable implementation, we could also compare their identities
-return lhs === rhs
-```
-
-# Dictionary O(1) access
+# Dictionaries
 
 An optimizing trick is to make use of the quick O(1) operation when accessing a dictionary, since they are hashed.
 
 The trade off is that the setup takes O(n), and a space of O(n). And you need the type to be hashable.
 
-# Hashable
+### Creating a Dictionary
 
 ```swift
-extension MyClass: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self).hashValue)
-    }
-}
+var airports = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+
+print("The airports dictionary contains \(airports.count) items.")
+// Prints "The airports dictionary contains 2 items."
 ```
 
-# Set
+### Loop dictionary
+
+```swift
+for (key, value) in dictionary
+```
+
+### Check if dictionary has key
+
+```swift
+dictionary.keys.contains("k")
+
+// Alternative, if the value type is _never_ `Optional`
+if dictionary["k"] == nil // "k" is not in keys
+```
+
+### Accessing and Modifying a Dictionary
+
+```swift
+if airports.isEmpty {
+    print("The airports dictionary is empty.")
+} else {
+    print("The airports dictionary isn't empty.")
+}
+// Prints "The airports dictionary isn't empty."
+
+airports["LHR"] = "London"
+// the airports dictionary now contains 3 items
+
+airports["LHR"] = "London Heathrow"
+// the value for "LHR" has been changed to "London Heathrow"
+
+if let oldValue = airports.updateValue("Dublin Airport", forKey: "DUB") {
+    print("The old value for DUB was \(oldValue).")
+}
+// Prints "The old value for DUB was Dublin."
+
+if let airportName = airports["DUB"] {
+    print("The name of the airport is \(airportName).")
+} else {
+    print("That airport isn't in the airports dictionary.")
+}
+// Prints "The name of the airport is Dublin Airport."
+
+airports["APL"] = "Apple International"
+// "Apple International" isn't the real airport for APL, so delete it
+airports["APL"] = nil
+// APL has now been removed from the dictionary
+
+if let removedValue = airports.removeValue(forKey: "DUB") {
+    print("The removed airport's name is \(removedValue).")
+} else {
+    print("The airports dictionary doesn't contain a value for DUB.")
+}
+// Prints "The removed airport's name is Dublin Airport."
+```
+
+# Sets
 
 Sets in Swift are similar to arrays and dictionaries. Just like arrays and dictionaries, the `Set` type is used to store multiple items of the same type in one collection.
 
@@ -229,4 +251,86 @@ Can we find the **difference** between two coffees?
 ```swift
 latte.symmetricDifference(americano)
 // ["milk", "water"]
+```
+
+# Comparable, Equatable
+
+To compare and sort, the type must implement the `Comparable` protocol.
+
+```swift
+extension MyClass: Comparable {
+    static func < (lhs: MyClass, MyClass: Date) -> Bool {
+        return lhs.foo < rhs.foo
+    }
+}
+```
+
+[Comparable](https://developer.apple.com/documentation/swift/comparable) inherits [Equatable](https://developer.apple.com/documentation/swift/equatable) protocol, so you might need to implement it too. In cases like struct where Equatable is provided by default, you need not implement it.
+
+```swift
+extension MyClass: Equatable {
+    public static func == (lhs: MyClass, rhs: MyClass) -> Bool {
+        return lhs.foo == rhs.foo
+    }
+}
+```
+
+# Identity Comparison ===
+
+[https://developer.apple.com/documentation/swift/1538988](https://developer.apple.com/documentation/swift/1538988)
+
+Returns a Boolean value indicating whether two references point to the same object instance.
+
+```swift
+func === (lhs: AnyObject?, rhs: AnyObject?) -> Bool
+```
+
+This operator tests whether two instances have the same identity, not the same value. For value equality, see the equal-to operator (==) and the Equatable protocol.
+
+The following example defines an IntegerRef type, an integer type with reference semantics.
+
+```swift
+class IntegerRef: Equatable {
+    let value: Int
+    init(_ value: Int) {
+        self.value = value
+    }
+}
+
+func ==(lhs: IntegerRef, rhs: IntegerRef) -> Bool {
+    return lhs.value == rhs.value
+}
+```
+
+Because IntegerRef is a class, its instances can be compared using the identical-to operator (===). In addition, because IntegerRef conforms to the Equatable protocol, instances can also be compared using the equal-to operator (==).
+
+```swift
+let a = IntegerRef(10)
+let b = a
+print(a == b)
+// Prints "true"
+print(a === b)
+// Prints "true"
+```
+
+The identical-to operator (===) returns false when comparing two references to different object instances, even if the two instances have the same value.
+
+```swift
+let c = IntegerRef(10)
+print(a == c)
+// Prints "true"
+print(a === c)
+// Prints "false"
+```
+
+# Hashable
+
+[Hashable](https://developer.apple.com/documentation/swift/hashable) - A type that can be hashed into a Hasher to produce an integer hash value.
+
+```swift
+extension MyClass: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self).hashValue)
+    }
+}
 ```
