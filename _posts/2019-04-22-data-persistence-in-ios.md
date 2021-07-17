@@ -2,7 +2,7 @@
 layout: post
 title: "Data Persistence in iOS"
 author: "Linh Vo"
-tags: "UIKit"
+tags: "Database"
 ---
 
 Data persistence means storing any type of data to disk so that the same data can be retrieved without being altered when the user opens the app next time. We are going to describe all the ways to store data locally in iOS apps.
