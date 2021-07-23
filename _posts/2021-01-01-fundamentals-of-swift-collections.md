@@ -2,7 +2,7 @@
 layout: post
 title: "Fundamentals of Swift Collections"
 author: "Linh Vo"
-tags: "Data-Structures-Algorithms"
+tags: "Data-Structures-And-Algorithms"
 ---
 
 The coding interview process is notoriously difficult, and the preparation process isn’t any easier. Developers often spend months preparing for their coding interviews. At most big tech companies, coding problems are the biggest part of the interview process.

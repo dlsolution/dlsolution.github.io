@@ -2,7 +2,7 @@
 layout: post
 title: "Types of Databases"
 author: "Linh Vo"
-tags: "UIKit"
+tags: "Databases"
 ---
 
 # Types of Databases

@@ -228,7 +228,7 @@ This session suggests us to use image assets for the following reasons:
 
 ## Vector artwork
 
-- Since iOS 11, image assets support  “Preserve Vector Data”
+- Since iOS 11, image assets support “Preserve Vector Data”
 
 - Avoids blurriness and aliasing when drawn larger or smaller than natural size
 

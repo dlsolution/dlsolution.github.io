@@ -2,7 +2,7 @@
 layout: post
 title: "Getting started with Core Data"
 author: "Linh Vo"
-tags: "Database"
+tags: "Databases"
 ---
 
 # Table of Content

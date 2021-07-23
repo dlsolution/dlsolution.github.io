@@ -2,7 +2,7 @@
 layout: post
 title: "Tech Interview Cheat Sheet"
 author: "Linh Vo"
-tags: "Data-Structures-Algorithms"
+tags: "Data-Structures-And-Algorithms"
 ---
 
 This list is meant to be both a quick guide and reference for further research into these topics. It's basically a summary of that comp sci course you never took or forgot about, so there's no way it can cover everything in depth.

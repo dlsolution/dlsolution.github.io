@@ -2,7 +2,7 @@
 layout: post
 title: "Automatic API request retries"
 author: "Linh Vo"
-tags: "UIKit"
+tags: "Networking"
 ---
 
 # NetworkClient with Retries
