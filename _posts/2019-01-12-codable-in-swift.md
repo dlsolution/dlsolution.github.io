@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Codeable in Swift"
+title: "Codable in Swift"
 author: "Linh Vo"
 tags: "UIKit"
 ---
@@ -387,3 +387,7 @@ In the above example, we’re also using the `outputFormatting` property of the 
 # Tools
 
 [quicktype](https://app.quicktype.io/#l=swift) produces nice types and JSON (de)serializers for many programming languages. It can infer types from JSON but also takes types from JSON Schema, TypeScript, and GraphQL.
+
+# codable-cheat-sheet
+
+[codable-cheat-sheet](https://github.com/dlsolution/codable-cheat-sheet)
