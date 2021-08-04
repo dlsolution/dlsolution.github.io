@@ -7,13 +7,13 @@ permalink: /about/
 
 # Hi, I'm Linh 👋
 
-I'm a passionate Software Engineer living in Vietnam, currently I’m a full-time independent iOS Developer.
+I am a passionate software engineer living in Vietnam. Currently, I am a full-time independent iOS developer.
 
-I graduated from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng) and started working at [Asian Tech Co., Ltd.](https://asiantech.vn/) in 2016.
+I graduated from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng), major in engineering information technology. I started working at [Asian Tech Co., Ltd.](https://asiantech.vn/) in 2016.
 
-I have more 4 years experience in iOS application development covering multiple technologies, working on software design, coding, testing and maintenance.
+I have more than four years of experience in iOS application development covering multiple technologies, working on software design, coding, testing, and maintenance.
 
-I always learn and research new technologies, love to explore. I can adapt quickly a new technology.
+I am keen on learning and researching new technologies, love to explore. I can quickly adapt to new technology.
 
 ### Technical Skills:
 
