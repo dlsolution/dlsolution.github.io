@@ -7,387 +7,682 @@ tags: "Networking"
 
 In this article I want to provide quick code samples to help you solve answer common questions and solve common problems, all using `Codable`.
 
-# Encoding and decoding JSON
+# Table of contents
 
-Let’s start with the basics: converting some JSON into Swift structs.
+- [Nested types](#nested-types)
+- [Snake case vs camel case](#snake-case-vs-camel-case)
+- [Custom coding keys](#custom-coding-keys)
+- [Keyed containers](#keyed-containers)
+- [Nested keyed containers](#nested-keyed-containers)
+- [Dates](#dates)
+- [Subclasses](#subclasses)
+- [Polymorphic types](#polymorphic-types)
+- [Unkeyed containers](#unkeyed-containers)
+- [Nested unkeyed containers](#nested-unkeyed-containers)
+- [Dynamic Keys](#dynamic-keys)
+- [quicktype](#quicktype)
+- [Codable cheat sheet](#codable-cheat-sheet)
 
-First, here’s some JSON to work with:
-
-```swift
-let json = """
-[
-    {
-        "name": "Paul",
-        "age": 38
-    },
-    {
-        "name": "Andrew",
-        "age": 40
-    }
-]
-"""
-
-let data = Data(json.utf8)
-```
-
-The last line converts it to a `Data` object because that’s what `Codable` decoders work with.
-
-Next we need to define a Swift struct that will hold our finished data:
+# Nested types
 
 ```swift
-struct User: Codable {
-    var name: String
-    var age: Int
+let jsonData = """
+{
+  "name" : "John Appleseed",
+  "id" : 7,
+  "favoriteToy" : {
+    "name" : "Teddy Bear"
+  }
 }
-```
+""".data(using: .utf8)!
 
-Now we can go ahead and perform the decode:
+struct Toy: Codable {
+  var name: String
+}
 
-```swift
+struct Employee: Codable {
+  var name: String
+  var id: Int
+  var favoriteToy: Toy
+}
+
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, favoriteToy: toy)
+
+let encoder = JSONEncoder()
 let decoder = JSONDecoder()
 
-do {
-    let decoded = try decoder.decode([User].self, from: data)
-    print(decoded[0].name)
-} catch {
-    print("Failed to decode JSON")
-}
+let dataEncoder = try encoder.encode(employee)
+let string = String(data: dataEncoder, encoding: .utf8)!
+print(string)
+
+let sameEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(sameEmployee)
+print(sameEmployee.favoriteToy)
 ```
 
-That will print “Paul”, which is the name of the first user in the JSON.
-
-# Converting case
-
-A common problem with JSON is that it will use different formatting for its key names than we want to use in Swift. For example, you might get “first_name” in your JSON and need to convert that to a `firstName` property.
-
-Now, one obvious solution here is just to change either the JSON or your Swift types so they use the same naming convention, but we’re not going to do that here. Instead, I’m going to assume you have code like this:
+# Snake case vs camel case
 
 ```swift
-let json = """
-[
-    {
-        "first_name": "Paul",
-        "last_name": "Hudson"
-    },
-    {
-        "first_name": "Andrew",
-        "last_name": "Carnegie"
-    }
-]
-"""
-
-let data = Data(json.utf8)
-
-struct User: Codable {
-    var firstName: String
-    var lastName: String
+let jsonData = """
+{
+  "name" : "John Appleseed",
+  "id" : 7,
+  "favorite_toy" : {
+    "name" : "Teddy Bear"
+  }
 }
-```
+""".data(using: .utf8)!
 
-To make this work we need to change only one property in our JSON decoder:
+struct Toy: Codable {
+  var name: String
+}
 
-```swift
+struct Employee: Codable {
+  var name: String
+  var id: Int
+  var favoriteToy: Toy
+}
+
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, favoriteToy: toy)
+
+let encoder = JSONEncoder()
 let decoder = JSONDecoder()
+
+encoder.keyEncodingStrategy = .convertToSnakeCase
+let snakeData = try encoder.encode(employee)
+let snakeString = String(data: snakeData, encoding: .utf8)!
+print(snakeString)
+
 decoder.keyDecodingStrategy = .convertFromSnakeCase
+let camelEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(camelEmployee)
+print(camelEmployee.favoriteToy)
 ```
 
-That instructs Swift to map snake case names (names_written_like_this) to camel case names (namesWrittenLikeThis).
-
-# Mapping different key names
-
-If you have JSON keys that are completely different from your Swift properties, you can map them using a `CodingKeys` enum.
-
-Take a look at this JSON:
+# Custom coding keys
 
 ```swift
-let json = """
-[
-    {
-        "user_first_name": "Taylor",
-        "user_last_name": "Swift"
-        "user_age": 26
-    }
-]
-"""
-```
-
-Those key names aren’t great, and really we’d like to convert that data into a struct like this:
-
-```swift
-struct User: Codable {
-    var firstName: String
-    var lastName: String
-    var age: Int
+let jsonData = """
+{
+  "name" : "John Appleseed",
+  "id" : 7,
+  "gift" : {
+    "name" : "Teddy Bear"
+  }
 }
-```
+""".data(using: .utf8)!
 
-To make that happen we need to declare a `CodingKeys` enum: a mapping that `Codable` can use to convert JSON names into properties for our struct. This is a regular enum that uses strings for its raw values so that we can specify both our property name (the enum case) and the JSON name (the enum value) at the same time. It also needs to conform to the `CodingKey` protocol, which is what makes this work with the `Codable` protocol.
-
-So, add this enum to the struct:
-
-```swift
-enum CodingKeys: String, CodingKey {
-    case firstName = "user_first_name"
-    case lastName = "user_last_name"
-    case age
-}
-```
-
-That will now able to decode the JSON as planned.
-
-Note: The enum is called `CodingKeys` and the protocol is called `CodingKey`.
-
-# Working with ISO-8601 dates
-
-There are many ways of working with dates on the internet, but ISO-8601 is the most common. It encodes the full date in YYYY-MM-DD format, then the letter “T” to signal the start of time information, then the time in HH:MM:SS format, and finally a timezone. The timezone “Z”, short for “Zulu time” is commonly used to mean UTC.
-
-`Codable` is able to handle ISO-8601 with a built-in date converter. So, given this JSON:
-
-```swift
-let json = """
-[
-    {
-        "first_name": "Theo",
-        "time_of_birth": "1999-04-03T17:30:31Z"
-    }
-]
-"""
-```
-
-We can decode it like this:
-
-```swift
-struct Baby: Codable {
-    var firstName: String
-    var timeOfBirth: Date
+struct Toy: Codable {
+  var name: String
 }
 
+struct Employee: Codable {
+  var name: String
+  var id: Int
+  var favoriteToy: Toy
+
+  enum CodingKeys: String, CodingKey {
+    case name, id, favoriteToy = "gift"
+  }
+}
+
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, favoriteToy: toy)
+
+let encoder = JSONEncoder()
 let decoder = JSONDecoder()
-decoder.keyDecodingStrategy = .convertFromSnakeCase
-decoder.dateDecodingStrategy = .iso8601
+
+let data = try encoder.encode(employee)
+let string = String(data: data, encoding: .utf8)!
+print(string)
+
+let sameEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(sameEmployee)
 ```
 
-That enables ISO-8601 date parsing, which converts from 1999-04-03T17:30:31Z to a `Date` instance, while also handling the snake case to camel case conversion.
-
-# Working with other common dates
-
-Swift comes with built-in support for three other important date formats. You use them just like you use ISO-8601 dates as shown above, so I’ll just talk about them briefly:
-
-- The `.deferredToDate` format is Apple’s own date format, and it tracks the number of seconds and milliseconds since January 1st 2001. This isn’t really useful outside of Apple’s platforms.
-
-- The `.millisecondsSince1970` format tracks the number of seconds and milliseconds since January 1st 1970. This is quite common online.
-
-- The `.secondsSince1970` format tracks the number of whole seconds since January 1st 1970. This extremely common online, and is second only to ISO-8601.
-
-# Working with custom dates
-
-If your date format doesn’t match one of the built-in options, don’t despair: Codable can parse custom dates based on a date formatter you create.
-
-For example, this JSON tracks the day a student graduated from university:
+# Keyed containers
 
 ```swift
-let json = """
-[
-    {
-        "first_name": "Jess",
-        "graduation_day": "31-08-2001"
-    }
-]
-"""
-```
+let jsonData = """
+{
+  "name" : "John Appleseed",
+  "id" : 7,
+  "gift" : "Teddy Bear"
+}
+""".data(using: .utf8)!
 
-That uses the date format DD-MM-YYYY, which isn’t one of Swift’s built-in options. Fortunately, you can provide a pre-configured `DateFormatter` instance as a date decoding strategy, like this:
+struct Toy: Codable {
+  var name: String
+}
 
-```swift
-let formatter = DateFormatter()
-formatter.dateFormat = "dd-MM-yyyy"
+struct Employee: Encodable {
+  var name: String
+  var id: Int
+  var favoriteToy: Toy
 
+  enum CodingKeys: CodingKey {
+    case name, id, gift
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(name, forKey: .name)
+    try container.encode(id, forKey: .id)
+    try container.encode(favoriteToy.name, forKey: .gift)
+  }
+}
+
+extension Employee: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    name = try container.decode(String.self, forKey: .name)
+    id = try container.decode(Int.self, forKey: .id)
+    let gift = try container.decode(String.self, forKey: .gift)
+    favoriteToy = Toy(name: gift)
+  }
+}
+
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, favoriteToy: toy)
+
+let encoder = JSONEncoder()
 let decoder = JSONDecoder()
-decoder.keyDecodingStrategy = .convertFromSnakeCase
-decoder.dateDecodingStrategy = .formatted(formatter)
+
+let data = try encoder.encode(employee)
+let string = String(data: data, encoding: .utf8)!
+print(string)
+
+let sameEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(sameEmployee)
 ```
 
-# Working with weird dates
-
-Sometimes you’ll get dates so strange that even `DateFormatter` can’t handle them. For example, you might get JSON that stores dates using the number of days that have elapsed since January 1st 1970:
+# Nested keyed containers
 
 ```swift
-let json = """
-[
-    {
-        "first_name": "Jess",
-        "graduation_day": 10650
+let jsonData = """
+{
+  "name" : "John Appleseed",
+  "id" : 7,
+  "gift" : {
+    "toy" : {
+      "name" : "Teddy Bear"
     }
-]
-"""
+  }
+}
+""".data(using: .utf8)!
+
+struct Toy: Codable {
+  var name: String
+}
+
+struct Employee: Encodable {
+  var name: String
+  var id: Int
+  var favoriteToy: Toy
+
+  enum CodingKeys: CodingKey {
+    case name, id, gift
+  }
+
+  enum GiftKeys: CodingKey {
+    case toy
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(name, forKey: .name)
+    try container.encode(id, forKey: .id)
+    var giftContainer = container.nestedContainer(keyedBy: GiftKeys.self, forKey: .gift)
+    try giftContainer.encode(favoriteToy, forKey: .toy)
+  }
+}
+
+extension Employee: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    name = try container.decode(String.self, forKey: .name)
+    id = try container.decode(Int.self, forKey: .id)
+    let giftContainer =  try container.nestedContainer(keyedBy: GiftKeys.self, forKey: .gift)
+    favoriteToy = try giftContainer.decode(Toy.self, forKey: .toy)
+  }
+}
+
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, favoriteToy: toy)
+
+let encoder = JSONEncoder()
+let decoder = JSONDecoder()
+
+let nestedData = try encoder.encode(employee)
+let nestedString = String(data: nestedData, encoding: .utf8)!
+print(nestedString)
+
+let sameEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(sameEmployee)
 ```
 
-To make that work we need to write a custom decoder for the date. Everything else will still be handled by `Codable` – we’re just providing a custom closure that will process the dates part.
-
-You could try doing some hacky mathematics here such as multiplying the day count by 86400 (the number of seconds in a day), then using the `addTimeInterval()` method of `Date`. However, that won’t take into account daylight savings time and other date problems, so a better solution is to use `DateComponents` and `Calendar` like this:
+# Dates
 
 ```swift
+let jsonData = """
+{
+  "id" : 7,
+  "name" : "John Appleseed",
+  "birthday" : "29-05-2019",
+  "toy" : {
+    "name" : "Teddy Bear"
+  }
+}
+""".data(using: .utf8)!
+
+struct Toy: Codable {
+  var name: String
+}
+
+let encoder = JSONEncoder()
 let decoder = JSONDecoder()
-decoder.keyDecodingStrategy = .convertFromSnakeCase
-decoder.dateDecodingStrategy = .custom { decoder in
-    // pull out the number of days from Codable
-    let container = try decoder.singleValueContainer()
-    let numberOfDays = try container.decode(Int.self)
 
-    // create a start date of Jan 1st 1970, then a DateComponents instance for our JSON days
-    let startDate = Date(timeIntervalSince1970: 0)
-    var components = DateComponents()
-    components.day = numberOfDays
+struct Employee: Codable {
+  var name: String
+  var id: Int
+  var birthday: Date
+  var toy: Toy
+}
 
-    // create a Calendar and use it to measure the difference between the two
-    let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(byAdding: components, to: startDate) ?? Date()
+let toy = Toy(name: "Teddy Bear")
+let employee = Employee(name: "John Appleseed", id: 7, birthday: Date(), toy: toy)
+
+extension DateFormatter {
+  static let dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "dd-MM-yyyy"
+    return formatter
+  }()
+}
+
+encoder.dateEncodingStrategy = .formatted(.dateFormatter)
+decoder.dateDecodingStrategy = .formatted(.dateFormatter)
+
+let dateData = try encoder.encode(employee)
+let dateString = String(data: dateData, encoding: .utf8)!
+print(dateString)
+
+let sameEmployee = try decoder.decode(Employee.self, from: jsonData)
+print(sameEmployee)
+```
+
+# Subclasses
+
+```swift
+let jsonData = """
+{
+  "toy" : {
+    "name" : "Teddy Bear"
+  },
+  "employee" : {
+    "name" : "John Appleseed",
+    "id" : 7
+  },
+  "birthday" : 580794178.33482599
+}
+""".data(using: .utf8)!
+
+struct Toy: Codable {
+  var name: String
+}
+
+class BasicEmployee: Codable {
+  var name: String
+  var id: Int
+
+  init(name: String, id: Int) {
+    self.name = name
+    self.id = id
+  }
+}
+
+class GiftEmployee: BasicEmployee {
+  var birthday: Date
+  var toy: Toy
+
+  enum CodingKeys: CodingKey {
+    case employee, birthday, toy
+  }
+
+  init(name: String, id: Int, birthday: Date, toy: Toy) {
+    self.birthday = birthday
+    self.toy = toy
+    super.init(name: name, id: id)
+  }
+
+  required init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    birthday = try container.decode(Date.self, forKey: .birthday)
+    toy = try container.decode(Toy.self, forKey: .toy)
+    let baseDecoder = try container.superDecoder(forKey: .employee)
+    try super.init(from: baseDecoder)
+  }
+
+  override func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(birthday, forKey: .birthday)
+    try container.encode(toy, forKey: .toy)
+    let baseEncoder = container.superEncoder(forKey: .employee)
+    try super.encode(to: baseEncoder)
+  }
+}
+
+let toy = Toy(name: "Teddy Bear")
+let encoder = JSONEncoder()
+let decoder = JSONDecoder()
+
+let giftEmployee = GiftEmployee(name: "John Appleseed", id: 7, birthday: Date(), toy: toy)
+let giftData = try encoder.encode(giftEmployee)
+let giftString = String(data: giftData, encoding: .utf8)!
+
+let sameGiftEmployee = try decoder.decode(GiftEmployee.self, from: jsonData)
+print(sameGiftEmployee.birthday)
+print(sameGiftEmployee.toy)
+print(sameGiftEmployee.id)
+print(sameGiftEmployee.name)
+```
+
+# Polymorphic types
+
+```swift
+let jsonData = """
+[
+  {
+    "name" : "John Appleseed",
+    "id" : 7
+  },
+  {
+    "id" : 7,
+    "name" : "John Appleseed",
+    "birthday" : 580797832.94787002,
+    "toy" : {
+      "name" : "Teddy Bear"
+    }
+  }
+]
+""".data(using: .utf8)!
+
+struct Toy: Codable {
+  var name: String
+}
+let toy = Toy(name: "Teddy Bear")
+let encoder = JSONEncoder()
+let decoder = JSONDecoder()
+
+enum AnyEmployee: Encodable {
+  case defaultEmployee(String, Int)
+  case customEmployee(String, Int, Date, Toy)
+  case noEmployee
+
+  enum CodingKeys: CodingKey {
+    case name, id, birthday, toy
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    switch self {
+      case .defaultEmployee(let name, let id):
+        try container.encode(name, forKey: .name)
+        try container.encode(id, forKey: .id)
+      case .customEmployee(let name, let id, let birthday, let toy):
+        try container.encode(name, forKey: .name)
+        try container.encode(id, forKey: .id)
+        try container.encode(birthday, forKey: .birthday)
+        try container.encode(toy, forKey: .toy)
+      case .noEmployee:
+        let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Invalid employee!")
+        throw EncodingError.invalidValue(self, context)
+    }
+  }
+}
+
+extension AnyEmployee: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let containerKeys = Set(container.allKeys)
+    let defaultKeys = Set<CodingKeys>([.name, .id])
+    let customKeys = Set<CodingKeys>([.name, .id, .birthday, .toy])
+
+    guard containerKeys == defaultKeys || containerKeys == customKeys else {
+      let context = DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Not enough keys!")
+      throw DecodingError.dataCorrupted(context)
+    }
+
+    switch containerKeys {
+      case defaultKeys:
+        let name = try container.decode(String.self, forKey: .name)
+        let id = try container.decode(Int.self, forKey: .id)
+        self = .defaultEmployee(name, id)
+      case customKeys:
+        let name = try container.decode(String.self, forKey: .name)
+        let id = try container.decode(Int.self, forKey: .id)
+        let birthday = try container.decode(Date.self, forKey: .birthday)
+        let toy = try container.decode(Toy.self, forKey: .toy)
+        self = .customEmployee(name, id, birthday, toy)
+      default:
+        self = .noEmployee
+    }
+  }
+}
+
+let employees = [AnyEmployee.defaultEmployee("John Appleseed", 7), AnyEmployee.customEmployee("John Appleseed", 7, Date(), toy)]
+let employeesData = try encoder.encode(employees)
+let employeesString = String(data: employeesData, encoding: .utf8)!
+print(employeesString)
+
+let sameEmployees = try decoder.decode([AnyEmployee].self, from: jsonData)
+print(sameEmployees.count)
+sameEmployees.forEach {
+    print($0)
 }
 ```
 
-_Warning:_ If you have to parse lots of dates, remember that this closure will be run for every single one – make it fast!
-
-# Parsing hierarchical data the easy way
-
-Any non-trivial JSON is likely to have hierarchical data – one collection of data nested inside another. For example:
+# Unkeyed containers
 
 ```swift
-let json = """
+let jsonData = """
 [
-    {
-        "name": {
-            "first_name": "Taylor",
-            "last_name": "Swift"
-        },
-        "age": 26
-    }
+  "teddy bear",
+  "TEDDY BEAR",
+  "Teddy Bear"
 ]
-"""
-```
+""".data(using: .utf8)!
 
-`Codable` is able to handle this just fine, as long as you can describe the relationships clearly.
-
-```swift
-struct User: Codable {
-    struct Name: Codable {
-        var firstName: String
-        var lastName: String
-    }
-
-    var name: Name
-    var age: Int
+struct Toy: Codable {
+  var name: String
 }
+
+let toy = Toy(name: "Teddy Bear")
+
+let encoder = JSONEncoder()
+let decoder = JSONDecoder()
+
+struct Label: Encodable {
+  var toy: Toy
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.unkeyedContainer()
+    try container.encode(toy.name.lowercased())
+    try container.encode(toy.name.uppercased())
+    try container.encode(toy.name)
+  }
+}
+
+extension Label: Decodable {
+  init(from decoder: Decoder) throws {
+    var container = try decoder.unkeyedContainer()
+    var name = ""
+    while !container.isAtEnd {
+      name = try container.decode(String.self)
+    }
+    toy = Toy(name: name)
+  }
+}
+
+let label = Label(toy: toy)
+let labelData = try encoder.encode(label)
+let labelString = String(data: labelData, encoding: .utf8)!
+print(labelString)
+
+let sameLabel = try decoder.decode(Label.self, from: jsonData)
+print(sameLabel.toy)
 ```
 
-The downside is that if you want to read a user’s first name, you need to use `user.name.firstName`, but at least the actual parsing work is trivial – our existing code works already!
-
-# Parsing hierarchical data the hard way
-
-If you want to parse hierarchical data into a flat struct – i.e., you want to be able to write `user.firstName` rather than `user.name.firstName` - then you need to do some parsing yourself. This isn’t too hard, though, and `Codable` makes it beautifully type safe.
+# Nested unkeyed containers
 
 ```swift
-let json = """
-[
-    {
-        "name": {
-            "first_name": "Taylor",
-            "last_name": "Swift"
-        },
-        "age": 26
+let jsonData = """
+{
+  "name" : "Teddy Bear",
+  "label" : [
+    "teddy bear",
+    "TEDDY BEAR",
+    "Teddy Bear"
+  ]
+}
+""".data(using: .utf8)!
+
+let encoder = JSONEncoder()
+let decoder = JSONDecoder()
+
+struct Toy: Encodable {
+  var name: String
+  var label: String
+
+  enum CodingKeys: CodingKey {
+    case name, label
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(name, forKey: .name)
+    var labelContainer = container.nestedUnkeyedContainer(forKey: .label)
+    try labelContainer.encode(label.lowercased())
+    try labelContainer.encode(label.uppercased())
+    try labelContainer.encode(label)
+  }
+}
+
+extension Toy: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    name = try container.decode(String.self, forKey: .name)
+    var labelContainer = try container.nestedUnkeyedContainer(forKey: .label)
+    var labelName = ""
+    while !labelContainer.isAtEnd {
+        labelName = try labelContainer.decode(String.self)
     }
-]
+    label = labelName
+  }
+}
+
+let toy = Toy(name: "Teddy Bear", label: "Teddy Bear")
+let data = try encoder.encode(toy)
+let string = String(data: data, encoding: .utf8)!
+print(string)
+
+let sameToy = try decoder.decode(Toy.self, from: jsonData)
+print(sameToy)
+```
+
+# Dynamic Keys
+
+```swift
+let jsonString = """
+{
+  "S001": {
+    "firstName": "Tony",
+    "lastName": "Stark"
+  },
+  "S002": {
+    "firstName": "Peter",
+    "lastName": "Parker"
+  },
+  "S003": {
+    "firstName": "Bruce",
+    "lastName": "Wayne"
+  }
+}
 """
-```
 
-```swift
-struct User: Codable {
+struct Student: Decodable {
+    let firstName: String
+    let lastName: String
+    let studentId: String
 
-    var firstName: String
-    var lastName: String
-    var age: Int
-
-    enum CodingKeys: String, CodingKey {
-        case name
-        case age
-    }
-
-    enum NameCodingKeys: String, CodingKey {
+    enum CodingKeys: CodingKey {
         case firstName
         case lastName
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        age = try container.decode(Int.self, forKey: .age)
-
-        let name = try container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
-        firstName = try name.decode(String.self, forKey: .firstName)
-        lastName = try name.decode(String.self, forKey: .lastName)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(age, forKey: .age)
-
-        var name = container.nestedContainer(keyedBy: NameCodingKeys.self, forKey: .name)
-        try name.encode(firstName, forKey: .firstName)
-        try name.encode(lastName, forKey: .lastName)
+        firstName = try container.decode(String.self, forKey: CodingKeys.firstName)
+        lastName = try container.decode(String.self, forKey: CodingKeys.lastName)
+        studentId = container.codingPath.first!.stringValue
     }
 }
-```
 
-# Encoding Swift Objects as JSON with Codable
+struct DecodedArray: Decodable {
 
-So far we’ve focused on decoding JSON data to Swift objects. What about going the other way? Can we also encode objects as JSON? Yes, why not!
+    var array: [Student]
 
-```swift
-var user = User()
-user.firstName = "Bob"
-user.lastName = "and Alice"
-user.country = "Cryptoland"
+    // Define DynamicCodingKeys type needed for creating
+    // decoding container from JSONDecoder
+    private struct DynamicCodingKeys: CodingKey {
 
-let jsonData = try! JSONEncoder().encode(user)
-let jsonString = String(data: jsonData, encoding: .utf8)!
-print(jsonString)
-```
+        // Use for string-keyed dictionary
+        var stringValue: String
+        init?(stringValue: String) {
+            self.stringValue = stringValue
+        }
 
-And the output is:
-
-```swift
-{"country":"Cryptoland","first_name":"Bob","last_name":"and Alice"}
-```
-
-Just as before, can we expand the example to deal with errors? Yes! Like this:
-
-```swift
-let encoder = JSONEncoder()
-encoder.outputFormatting = .prettyPrinted
-
-do {
-    let jsonData = try encoder.encode(user)
-
-    if let jsonString = String(data: jsonData, encoding: .utf8) {
-        print(jsonString)
+        // Use for integer-keyed dictionary
+        var intValue: Int?
+        init?(intValue: Int) {
+            // We are not using this, thus just return nil
+            return nil
+        }
     }
-} catch {
-    print(error.localizedDescription)
+
+    init(from decoder: Decoder) throws {
+
+        // Create a decoding container using DynamicCodingKeys
+        // The container will contain all the JSON first level key
+        let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+        var tempArray = [Student]()
+
+        // Loop through each key (student ID) in container
+        for key in container.allKeys {
+
+            // Decode Student using key & keep decoded Student object in tempArray
+            let decodedObject = try container.decode(Student.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
+            tempArray.append(decodedObject)
+        }
+
+        // Finish decoding all Student objects. Thus assign tempArray to array.
+        array = tempArray
+    }
 }
+
+let jsonData = Data(jsonString.utf8)
+let decodedResult = try! JSONDecoder().decode(DecodedArray.self, from: jsonData)
+dump(decodedResult.array)
 ```
 
-In the above example, we’re also using the `outputFormatting` property of the encoder to “pretty print” the JSON data. This adds spaces, tabs and newlines to make the JSON string easier to read. Like this:
-
-```swift
-{
-    "country" : "Cryptoland",
-    "first_name" : "Bob",
-    "last_name" : "and Alice"
-}
-```
-
-# Tools
+# quicktype
 
 [quicktype](https://app.quicktype.io/#l=swift) produces nice types and JSON (de)serializers for many programming languages. It can infer types from JSON but also takes types from JSON Schema, TypeScript, and GraphQL.
 
-# codable-cheat-sheet
+# Codable cheat sheet
 
 [codable-cheat-sheet](https://github.com/dlsolution/ios-tips-tricks/blob/master/codable-cheat-sheet/codable-cheat-sheet.md)
