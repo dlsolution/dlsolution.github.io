@@ -2,7 +2,7 @@
 layout: post
 title: "Codable in Swift"
 author: "Linh Vo"
-tags: "UIKit"
+tags: "Networking"
 ---
 
 In this article I want to provide quick code samples to help you solve answer common questions and solve common problems, all using `Codable`.
@@ -390,4 +390,4 @@ In the above example, we’re also using the `outputFormatting` property of the 
 
 # codable-cheat-sheet
 
-[codable-cheat-sheet](https://github.com/dlsolution/codable-cheat-sheet)
+[codable-cheat-sheet](https://github.com/dlsolution/ios-tips-tricks/blob/master/codable-cheat-sheet/codable-cheat-sheet.md)
