@@ -20,6 +20,8 @@ In this article I want to provide quick code samples to help you solve answer co
 - [Unkeyed containers](#unkeyed-containers)
 - [Nested unkeyed containers](#nested-unkeyed-containers)
 - [Dynamic Keys](#dynamic-keys)
+- [Enum](#enum)
+- [Nested structure](#nested-structure)
 - [quicktype](#quicktype)
 - [Codable cheat sheet](#codable-cheat-sheet)
 
@@ -677,6 +679,93 @@ struct DecodedArray: Decodable {
 let jsonData = Data(jsonString.utf8)
 let decodedResult = try! JSONDecoder().decode(DecodedArray.self, from: jsonData)
 dump(decodedResult.array)
+```
+
+# Enum
+
+Let’s say you have json object like this:
+
+```swift
+{
+    "name": "iOS developer",
+    "status": "open"
+}
+```
+
+You can create Swift struct like this:
+
+```swift
+struct Job: Codable {
+
+  enum Status: String, Codable {
+    case open
+    case close
+  }
+
+  let name: String
+  let status: Status
+}
+```
+
+If you have enum which isn't `String` or `Int` representable, you can still make it conform to `Codable` as long as that `raw value` is `Codable`.
+
+# Nested structure
+
+```swift
+{
+    "name": "John",
+    "district": "District",
+    "subDistrict": "Sub District",
+    "country": "Country",
+    "postalCode": "Postal Code"
+}
+```
+
+And want this Swift structure:
+
+```swift
+struct User: Codable {
+    var name: String
+    var billingAddress: BillingAddress
+}
+
+struct BillingAddress: Codable {
+    var district: String
+    var subDistrict: String
+    var country: String
+    var postalCode: String
+}
+```
+
+Following are what we need to implement:
+
+```swift
+struct User: Codable {
+    ....
+    enum CodingKeys: String, CodingKey {
+        case name
+        case billingAddress
+        case district
+        case subDistrict
+        case country
+        case postalCode
+    }
+}
+
+init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    name = try values.decode(String.self, forKey: .name)
+    billingAddress = try BillingAddress(from: decoder)
+}
+
+func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(name, forKey: .name)
+    try container.encode(billingAddress.district, forKey: .district)
+    try container.encode(billingAddress.subDistrict, forKey: .subDistrict)
+    try container.encode(billingAddress.country, forKey: .country)
+    try container.encode(billingAddress.postalCode, forKey: .postalCode)
+}
 ```
 
 # quicktype
