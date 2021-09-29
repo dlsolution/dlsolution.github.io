@@ -22,6 +22,7 @@ In this article I want to provide quick code samples to help you solve answer co
 - [Dynamic Keys](#dynamic-keys)
 - [Enum](#enum)
 - [Nested structure](#nested-structure)
+- [Single value container](#single-value-container)
 - [quicktype](#quicktype)
 - [Codable cheat sheet](#codable-cheat-sheet)
 
@@ -766,6 +767,49 @@ func encode(to encoder: Encoder) throws {
     try container.encode(billingAddress.country, forKey: .country)
     try container.encode(billingAddress.postalCode, forKey: .postalCode)
 }
+```
+
+# Single value container
+
+Returns the data stored in this decoder as represented in a container appropriate for holding a single primitive value.
+
+```swift
+[
+  {
+    "status": "completed"
+  },
+  {
+    "status": "inProgress"
+  },
+  {
+    "status": "archived"
+  }
+]
+```
+
+```swift
+enum Status: Decodable {
+  case completed, inProgress
+  case other(String)
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    let value = try container.decode(String.self)
+
+    switch value {
+    case "completed": self = .completed
+    case "inProgress": self = .inProgress
+    default: self = .other(value)
+    }
+  }
+}
+
+struct Product: Decodable {
+  let status: Status
+}
+
+let decoder = JSONDecoder()
+let products = try decoder.decode([Product].self, from: jsonData)
 ```
 
 # quicktype
