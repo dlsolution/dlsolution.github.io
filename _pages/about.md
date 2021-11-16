@@ -11,7 +11,7 @@ I am a passionate software engineer living in Vietnam. Currently, I am a full-ti
 
 I graduated from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng), major in engineering information technology. I started working at [Asian Tech Co., Ltd.](https://asiantech.vn/) in 2016.
 
-I have more than four years of experience in iOS application development covering multiple technologies, working on software design, coding, testing, and maintenance.
+I have more than five years of experience in iOS application development covering multiple technologies, working on software design, coding, testing, and maintenance.
 
 I am keen on learning and researching new technologies, love to explore. I can quickly adapt to new technology.
 
