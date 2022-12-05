@@ -149,6 +149,8 @@ URL classes, in general, are used when working with a network like API requests 
 
 - `Library/Caches`: This is a special folder. Here, we can save files we might need soon but don’t care about losing. When we stop using these files, the system will delete them. Images we download to load the app faster should end up in this folder.
 
+- `Library/Application Support Directory`: Store files in here that are required for your app but should never be visible to the user like your app’s database file.You can store files in here at the top level or create sub-directories. Content of the directory is persisted and included in the iCloud and iTunes backups.You can opt files out if they don’t need to be backed-up.Disk space used in the application support directory is reported in the storage settings UI under your app’s “Documents and Data” total.
+
 - `tmp`: Another special folder. Files stored here are not persisted across launches of the app. The directory could be purged by the system.
 
 {% include image.html
