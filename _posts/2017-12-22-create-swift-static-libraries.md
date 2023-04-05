@@ -3,6 +3,7 @@ layout: post
 title: "Create Swift Static Library"
 author: "Linh Vo"
 tags: "UIKit"
+published: false
 ---
 
 In this article, we will consider creating a static library and its integration to another project.
