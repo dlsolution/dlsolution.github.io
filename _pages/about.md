@@ -11,7 +11,7 @@ I am a passionate software engineer living in Vietnam.
 
 I graduated from [Danang University of Science and Technology](https://vi.wikipedia.org/wiki/Trường_Đại_học_Bách_khoa,_Đại_học_Đà_Nẵng), major in engineering information technology. Currently, I am working at [Est Rouge United Co., Ltd.](https://est-rouge.com/). 
 
-I have more than six years of experience in mobile application development covering multiple technologies, working on software design, coding, testing, and maintenance.
+I have more than seven years of experience in mobile application development covering multiple technologies, working on software design, coding, testing, and maintenance.
 
 I am keen on learning and researching new technologies, love to explore. I can quickly adapt to new technology.
 
